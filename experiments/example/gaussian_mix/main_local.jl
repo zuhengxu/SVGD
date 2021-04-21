@@ -47,7 +47,7 @@ Random.seed!(2021);
 x0  = rand(Normal(0,0.5), (2,500));
 x10 = rand(Normal(10, 0.5), (2, 500));
 ASV_local10 = SVGD_bw(init_ptc = x10, lpdf = lpdf, ∇lpdf =  ∇lpdf, 
-            Hessian = hessian_grid, anneal = i->  cyclical_sched(i, 500, 5.));
+            Hessian = hessian_grid, anneal = i->  cyclical_sched(i, 500, 1.));
 ASV_local = SVGD_bw(init_ptc = x0, lpdf = lpdf, ∇lpdf =  ∇lpdf, 
             Hessian = hessian_grid, anneal = i->  cyclical_sched(i, 500, 5.));
 niters = 1000

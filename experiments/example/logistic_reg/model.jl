@@ -10,12 +10,10 @@
 #########################################################################################
 
 
-function logπ(θ, dat; batchsize = 100, a =1., b = 0.01)
+function logπ(θ, Y, X; a =1., b = 0.01)
     d = size(dat,2) - 1
     τ = θ[1]
     W = θ[2:end]
-    Y = dat[:,1]
-    X = dat[:,2:end]
 
     logpτ = a*τ - b*(expm1(τ) +1.)
     logpW = 0.5*(d*τ - (expm1(τ) +1.)* sum(W.^2))
@@ -35,3 +33,7 @@ end
 function prior_sampler(Z)
     return randn(100, 2)
 end
+
+
+
+
