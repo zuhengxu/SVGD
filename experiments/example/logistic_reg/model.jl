@@ -5,7 +5,7 @@
 # The hidden variables \theta = {w, \alpha} consist of d regression coefficients w_k \in R,
 # and a precision parameter \alpha \in R_+. We assume the following model:
 #     p(α) = Gamma(α ; a, b) , τ = log α ∈ R  
-#     p(w_k | a) = N(w_k; 0, exp(-τ)^-1)
+#     p(w_k | τ) = N(w_k; 0, exp(-τ)^-1)
 #     p(y_t = 1| x_t, w) = 1 / (1+exp(-w^T x_t)), y ∈ {+1, -1}
 #########################################################################################
 
@@ -30,8 +30,10 @@ end
 # prior sampler (used as init particles)
 ##########
 
-function prior_sampler(Z)
-    return randn(100, 2)
+function prior_sampler(N, d;a = 1., b = 0.01)
+    τs = log1p.(rand(Gamma(a, 1/b), 100) .- 1.)
+    W = randn()
+    return x0
 end
 
 
