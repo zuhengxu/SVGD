@@ -1,0 +1,58 @@
+\section{Local bandwidth of two synthetic example}
+
+
+\captionsetup[subfigure]{labelformat=empty}
+\begin{figure}[H]
+    \centering 
+\begin{subfigure}[b]{.48\textwidth} 
+    \scalebox{1}{\includegraphics[width=\textwidth]{figures/bwsurf_grid.png}}
+    \caption{(a)\label{fig:surf_grid}}
+\end{subfigure}
+\hfill
+\centering
+\begin{subfigure}[b]{0.48\textwidth}
+    \scalebox{1}{\includegraphics[width=\textwidth]{figures/bwsurf_mix.png}}
+    \caption{(b)\label{fig:surf_mix}}
+\end{subfigure}
+
+\caption{Local bandwidth value for $4\times 4$ Gaussian grid (\cref{fig:surf_grid}) and 2-component Gaussian mixture (\cref{fig:surf_mix}).}
+\label{fig:bwsurface}
+\end{figure}
+
+
+
+\section{Algorithms}
+
+\begin{algorithm}[H] 
+    \caption{SVGD} \label{alg:SVGD} 
+\begin{algorithmic}
+   \Procedure{SVGD}{$\{x_i^{(0)}  \}_{i = 1}^n$, $\nabla \log p(x)$, $\kappa(\cdot, \cdot)$,$\gamma_k$} 
+   \For{ $k=0, 1, \dots, K-1$}
+        \For{$i = 1, 2, \dots, n$}
+        \State $x_{i}^{(k+1)} \leftarrow x_{i}^{(k)}+ \gamma_k \hat{\phi}_k^{\star}\left(x_{i}^{(k)}\right)$ where $\hat{\phi}_k^{\star}(\cdot)$ is defined in \cref{eq:svgd}
+        \EndFor
+    \EndFor
+    \State \Return $\left\{x_i^{(K)}  \right\}_{i = 1}^n$ 
+   \EndProcedure 
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[H] 
+    \caption{A-SVGD with local bandwidth} \label{alg:ASVGD_bw} 
+\begin{algorithmic}
+   \Procedure{SVGD}{$\{x_i^{(0)}  \}_{i = 1}^n$, $\nabla \log p(x)$, $\nabla^2 \log p(x)$,$\gamma_k$, $\alpha(t)$} 
+   \For{ $k=0, 1, \dots, K-1$}
+        \For{$i = 1, 2, \dots, n$}
+        \State $\Sigma_i \gets 1/(\max \left\{\diag \nabla^2 \log p\left( x_{i}^{(k)}\right) \right\}$
+        \State $\kappa(x, x'; \Sigma_i)\gets \exp(-(x - x')^T \Sigma_i^{-1}(x- x')  )$
+        \State $x_{i}^{(k+1)} \leftarrow x_{i}^{(k)}+ \gamma_k \hat{\phi}_{\alpha_k}\left(x_{i}^{(k)}\right)$ where $\hat{\phi}_{\alpha_k}(\cdot)$ is defined in \cref{eq:asvgd}
+        \EndFor
+    \EndFor
+    \State \Return $\left\{x_i^{(K)}  \right\}_{i = 1}^n$ 
+   \EndProcedure 
+\end{algorithmic}
+\end{algorithm}
+
+
+
+

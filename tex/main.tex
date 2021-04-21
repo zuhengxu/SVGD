@@ -1,0 +1,70 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage[autonum,tchypersetup]{tchdr}
+\usepackage{enumerate}
+\usepackage[sort&compress]{natbib} % citep/citet
+\usepackage{fancyhdr}
+\usepackage{jmlr2e} % jmlr style file
+\usepackage{float}
+
+
+
+\newcommand{\distChiSq}{\chi^2}
+\newcommand{\ltri}{\mathrm{tril}\,}
+\newcommand{\block}{\mathrm{blockd}\,}
+
+
+% Heading arguments are {volume}{year}{pages}{submitted}{published}{author-full-names}
+
+
+% Short headings should be running head and authors last names
+% \ShortHeadings{Learning with Mixtures of Trees}{Meil\u{a} and Jordan}
+
+\firstpageno{1}
+
+
+\begin{document}
+
+\title{Annealed Stein variational gradient descent with local bandwidth}
+
+\author{\name Zuheng(David) Xu \email zuheng.xu@stat.ubc.ca \\
+       \addr Student number: 24617185\\}      
+
+% \editor{Leslie Pack Kaelbling}
+
+\maketitle
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Main body of the paper
+%% including sections 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{sections/summary.tex}
+\input{sections/project.tex}
+% \input{sections/discussion.tex}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Reference
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\bibliographystyle{apalike}
+\bibliography{sources}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Appendix
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\appendix
+\input{sections/appendix.tex}
+
+
+
+
+
+\end{document}
