@@ -10,5 +10,6 @@ dat[201:300, :] .= randn(100, 2)*0.5 .+ center[:,3]'
 dat[301:400, :] .= randn(100, 2)*0.5 .+ center[:,4]'
 
 # fit with 2
-save("example/GMM/data/dataset.jld", "data", "data.jl")
+save("example/GMM/data/dataset.jld", "X", dat)
 
+# dat = load("example/GMM/data/dataset.jld")
