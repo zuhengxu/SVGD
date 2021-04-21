@@ -73,15 +73,12 @@ end
 function Gausskernel!(KM::Array{Float64, 2}, ∇K::Array{Float64, 2}, θ::Array{Float64, 2},H::Function, Σ_rule::Function)
     n = size(θ, 2)
     D = similar(θ)
-    K = zeros(n,n)
     #computing the KM and ∇K with multithread
-    @views @inbounds @threads for i in 1:n
+    @views @inbounds for i in 1:n
         #bw for each particle
         Q =  Σ_rule(θ[:, i], H)
-        # compute pairwise square Mahalanobis distance
-        K .= pairwise(SqMahalanobis(Q), θ)
         #local kernel matrix 
-        KM[:, i] = expm1.(-0.5*K[:, i]) .+ 1.
+        KM[:, i] = expm1.(-0.5* colwise(SqMahalanobis(Q), θ[:,i], θ)) .+ 1.
         #∇K[:, j] = ∑_i ∇ K(Xi, Yj)
         D .= θ .- θ[:, i]
         ∇K[:, i] = -Q*D * KM[:, i]
@@ -95,7 +92,7 @@ function Hessian_diag(x, H::Function)
     return  Matrix(Diagonal(abs.(H(x)) .+ 1e-10))
 end
 
-# Q = Hessian_inv(1., x -> 3*ones(3,3))
+# Q = Hessian_diag(1., x -> 3*ones(3,3))
 # θ = randn(3,10)
+# colwise(SqMahalanobis(Q), θ[:,2], θ)
 # pairwise(SqMahalanobis(Q), θ)
-# pairwise(SqEuclidean(), θ)

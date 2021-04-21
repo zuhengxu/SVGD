@@ -154,7 +154,7 @@ This hints at an important fact that using a universal kernel bandwidth for all 
 
 
 
-\section{A-SVGD with adaptive local bandwidth} \label{sec:bw}
+\section{A-SVGD with adaptive localized kernel} \label{sec:bw}
 With the intuition obtained in the last section, we suggest using different bandwidth values for each particle and updates the bandwidth adaptively across the iteration.
 The goal of this section is to design an adaptive procedure that learns a proper kernel bandwidth for each particle automatically.    
 As illustrated in \cref{fig:BW} and \cref{fig:differentBW}, a careful choice of kernel bandwidth is necessary when the target distribution has multiple modes and one might consider using different bandwidth values at a different location.  Intuitively, a proper choice of the bandwidth should reflect the local geometry of   $\log p(x)$---the curvature of $\log p(x)$---which includes information of the Hessian $\nabla^2 \log p(x)$.  

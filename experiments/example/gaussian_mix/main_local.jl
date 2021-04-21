@@ -7,7 +7,8 @@ include("example/common/plotting.jl")
 
 
 
-
+#figure path
+fig_path = "example/gaussian_mix/figure/"
 ##########
 ##########
 # 3. using local bw with curvature_scaling for gaussian mix
