@@ -44,9 +44,9 @@ hist_save(x, z-> π([z, z]), proj_xy(T_Gauss[:,:,end]); folder = fig_path, name 
 Random.seed!(2021);
 x0  = rand(Normal(0,0.5), (2,500));
 x10 = rand(Normal(10, 0.5), (2, 500));
-ASV_gs10 = SVGD_bw(init_ptc = x10, lpdf = lpdf, ∇lpdf =  ∇lpdf, 
+ASV_gs10 = SVGD_Gauss(init_ptc = x10, lpdf = lpdf, ∇lpdf =  ∇lpdf, 
             Hessian = hessian_grid, anneal = i->  cyclical_sched(i, 500, 5.));
-ASV_gs = SVGD_bw(init_ptc = x0, lpdf = lpdf, ∇lpdf =  ∇lpdf, 
+ASV_gs = SVGD_Gauss(init_ptc = x0, lpdf = lpdf, ∇lpdf =  ∇lpdf, 
             Hessian = hessian_grid, anneal = i->  cyclical_sched(i, 500, 5.));
 niters = 1000
 rms = RMSprop(lrt = i-> .05, niters = niters)
