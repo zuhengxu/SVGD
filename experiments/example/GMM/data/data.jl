@@ -1,30 +1,14 @@
-# Import RDatasets.
-using RDatasets
-# Functionality for splitting and normalizing the data
-using MLDataUtils: rescale!
+using Random, Distributions
 
+Random.seed!(2021);
+center  = (rand(2,4) .- 0.5)*10
 
-# Import the "Default" dataset.
-data = RDatasets.dataset("ISLR", "Default");
-# Convert "Default" and "Student" to numeric values.
-data[!,:DefaultNum] = [r.Default == "Yes" ? 1.0 : 0.0 for r in eachrow(data)]
-data[!,:StudentNum] = [r.Student == "Yes" ? 1.0 : 0.0 for r in eachrow(data)]
-# Delete the old columns which say "Yes" and "No".
-select!(data, Not([:Default, :Student]))
-data = data[1:1000,:]
+dat  = zeros(400, 2)
+dat[1:100, :] .= randn(100, 2)*0.5 .+ center[:,1]'
+dat[101:200, :] .= randn(100, 2)*0.5 .+ center[:,2]'
+dat[201:300, :] .= randn(100, 2)*0.5 .+ center[:,3]'
+dat[301:400, :] .= randn(100, 2)*0.5 .+ center[:,4]'
 
-
-features = [:StudentNum, :Balance, :Income]
-numerics = [:Balance, :Income]
-target = :DefaultNum
-
-# trainset, testset = split_data(data, target, at = 0.05)
-for feature in numerics
-  μ, σ = rescale!(data[!, feature], obsdim=1)
-  rescale!(data[!, feature], μ, σ, obsdim=1)
-end
-
-# Turing requires data in matrix form, not dataframe
-X = Matrix(data[:, features])
-Y = data[:, target]
+# fit with 2
+save("example/logistic_reg/data/dataset.jld", "data", "data.jl")
 
