@@ -13,24 +13,32 @@ Random.seed!(2021);
 # init paritcles from prior
 x0 = prior_sampler(200, 2,2)
 # #RMSprop update rule
-niters = 200
-rms = RMSprop(lrt = i-> .05, niters = niters)
+niters = 2000
+rms = RMSprop(lrt = i-> .01, niters = niters)
 #result_dir
-result_dir  = "example/logistic_reg/result"
+result_dir  = "example/GMM/result"
 
 ##########
 # build svgd(median bw) and svgd(localized kernel)
 ########## 
 svgd = SVGD(init_ptc = x0, lpdf = lpdf, ∇lpdf = ∇lpdf, kernel = RBFkernel!)
+asvgd = SVGD(init_ptc = x0, lpdf = lpdf, ∇lpdf = ∇lpdf, kernel = RBFkernel!, anneal = i->  cyclical_sched(i, 500, 1.))
 svgd_local = SVGD_Gauss(init_ptc = x0, lpdf = lpdf, ∇lpdf= ∇lpdf, Hessian = Hessian)
+asvgd_local = SVGD_Gauss(init_ptc = x0, lpdf = lpdf, ∇lpdf= ∇lpdf, Hessian = Hessian, anneal = i->  cyclical_sched(i, 500, 1.))
+
 
 ##########
 # Getting traces
 ########## 
-Tsv = svgd_trace(svgd, rms, 200, -1.)
-Tsv_local  =svgd_trace(svgd_local, rms, 200)
+ntrace = 200
+Tsv = svgd_trace(svgd, rms, ntrace, -1.)
+Tasv = svgd_trace(asvgd, rms, ntrace, -1.)
+Tsv_local  = svgd_trace(svgd_local, rms, ntrace)
+Tasv_local = svgd_trace(asvgd_local, rms, ntrace)
 #save the traces
-save(joinpath(result_dir, "Traces.jld"), "sv", Tsv, "sv_local", Tsv_local)
+save(joinpath(result_dir, "Traces.jld"), "sv", Tsv, "asv", Tasv,
+                                        "sv_local", Tsv_local, 
+                                        "acv_local", Tasv_local)
 
 
 ##########
