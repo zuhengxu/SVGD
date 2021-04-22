@@ -21,6 +21,6 @@ label = ["sv" "sv_local" "asv" "asv_local"]
 line_plot(X,log1p.(ksd_seq .- 1.) ; folder = fig_path, name = "GMM_ksd.png", label = label, 
             xlabel = "Iteration", ylabel = "KSD", legendfontsize=18)
 
-line_plot(X1, -log1p.(-elbo_seq[51:end,:] .- 1.);  folder = fig_path, name = "GMM_elbo.png",ylim = (-6.5,-6.25),
+line_plot(X1, -log1p.(-elbo_seq[51:end,:] .- 1.);  folder = fig_path, name = "GMM_elbo.png",ylim = (-6.5,-6.1),
             xlabel = "Iteration", ylabel = "ELBO (log scale)", legendfontsize=18)
 

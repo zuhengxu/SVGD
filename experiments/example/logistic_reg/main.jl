@@ -10,9 +10,9 @@ include("example/logistic_reg/model.jl")
 ##########
 Random.seed!(2021);
 # init paritcles from prior
-x0 = prior_sampler(200, 3)
+x0 = prior_sampler(300, 3)
 # #RMSprop update rule
-niters = 3000
+niters = 2000
 rms = RMSprop(lrt = i-> .01, niters = niters)
 #result_dir
 result_dir  = "example/logistic_reg/result"
@@ -26,8 +26,8 @@ svgd_local = SVGD_Gauss(init_ptc = x0, lpdf = lpdf, ∇lpdf= ∇lpdf, Hessian = 
 ##########
 # Getting traces
 ########## 
-Tsv = svgd_trace(svgd, rms, 300, -1.)
-Tsv_local  =svgd_trace(svgd_local, rms, 300)
+Tsv = svgd_trace(svgd, rms, 200, -1.)
+Tsv_local  =svgd_trace(svgd_local, rms, 200)
 #save the traces
 save(joinpath(result_dir, "Traces.jld"), "sv", Tsv, "sv_local", Tsv_local)
 
@@ -47,5 +47,4 @@ esv_local = elbo_trace(Tsv_local,lpdf);
 
 #save the ELBO and KSD
 save(joinpath(result_dir, "ksd.jld"), "sv", ksv, "sv_local", ksv_local);
-
-save(joinpath(result_dir, "elbo.jld"), "sv", esv, "sv_local", esv_local)
+save(joinpath(result_dir, "elbo.jld"), "sv", esv, "sv_local", esv_local);
