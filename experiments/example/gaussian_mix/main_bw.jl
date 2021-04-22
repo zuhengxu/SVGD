@@ -44,10 +44,10 @@ T5 = svgd_trace(ASV, rms, 100, 5.);
 T10 = svgd_trace(ASV, rms, 100, 10.);
 
 # compute ksds 
-ksd_med =  ksd_gaussian(permutedims(Tmed[:,:,end], (2,1)), x-> ForwardDiff.gradient(lpdf, x))
-ksd_1 = ksd_gaussian(permutedims(T1[:,:,end], (2,1)), x-> ForwardDiff.gradient(lpdf, x))
-ksd_5 = ksd_gaussian(permutedims(T5[:,:,end], (2,1)), x-> ForwardDiff.gradient(lpdf, x))
-ksd_10 = ksd_gaussian(permutedims(T10[:,:,end], (2,1)), x-> ForwardDiff.gradient(lpdf, x))
+# ksd_med =  ksd_gaussian(permutedims(Tmed[:,:,end], (2,1)), x-> ForwardDiff.gradient(lpdf, x))
+# ksd_1 = ksd_gaussian(permutedims(T1[:,:,end], (2,1)), x-> ForwardDiff.gradient(lpdf, x))
+# ksd_5 = ksd_gaussian(permutedims(T5[:,:,end], (2,1)), x-> ForwardDiff.gradient(lpdf, x))
+# ksd_10 = ksd_gaussian(permutedims(T10[:,:,end], (2,1)), x-> ForwardDiff.gradient(lpdf, x))
 
 # save traces and contour plots
 save("example/gaussian_mix/result/bw_result.jld", "bwmed", Tmed, "bw1", T1, "bw5", T5, "bw10", T10)

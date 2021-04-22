@@ -22,9 +22,9 @@ result_dir  = "example/GMM/result"
 # build svgd(median bw) and svgd(localized kernel)
 ########## 
 svgd = SVGD(init_ptc = x0, lpdf = lpdf, ∇lpdf = ∇lpdf, kernel = RBFkernel!)
-asvgd = SVGD(init_ptc = x0, lpdf = lpdf, ∇lpdf = ∇lpdf, kernel = RBFkernel!, anneal = i->  cyclical_sched(i, 500, 1.))
+asvgd = SVGD(init_ptc = x0, lpdf = lpdf, ∇lpdf = ∇lpdf, kernel = RBFkernel!, anneal = i->  cyclical_sched(i, 1000, 1.))
 svgd_local = SVGD_Gauss(init_ptc = x0, lpdf = lpdf, ∇lpdf= ∇lpdf, Hessian = Hessian)
-asvgd_local = SVGD_Gauss(init_ptc = x0, lpdf = lpdf, ∇lpdf= ∇lpdf, Hessian = Hessian, anneal = i->  cyclical_sched(i, 500, 1.))
+asvgd_local = SVGD_Gauss(init_ptc = x0, lpdf = lpdf, ∇lpdf= ∇lpdf, Hessian = Hessian, anneal = i->  cyclical_sched(i, 1000, 1.))
 
 
 ##########
@@ -44,11 +44,15 @@ save(joinpath(result_dir, "Traces.jld"), "sv", Tsv, "asv", Tasv,
 ##########
 # quantitative comparison
 ########## 
-# ksd over all iterations
+# ksd over all iterations 
+ksd_trace(Tasv_local, x-> ForwardDiff.gradient(lpdf, x))
 
 
 
 
 
-
-# logposterior value
+# ELBO estimation Eq[log p(x, Z)] 
+elbo_trace(Tasv_local, lpdf)
+elbo_trace(Tasv, lpdf)
+elbo_trace(Tsv, lpdf)
+elbo_trace(Tsv_local,lpdf)
