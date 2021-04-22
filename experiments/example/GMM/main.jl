@@ -13,7 +13,7 @@ Random.seed!(2021);
 # init paritcles from prior
 x0 = prior_sampler(200, 2,2)
 # #RMSprop update rule
-niters = 2000
+niters = 3000
 rms = RMSprop(lrt = i-> .01, niters = niters)
 #result_dir
 result_dir  = "example/GMM/result"
@@ -30,7 +30,7 @@ asvgd_local = SVGD_Gauss(init_ptc = x0, lpdf = lpdf, ∇lpdf= ∇lpdf, Hessian =
 ##########
 # Getting traces
 ########## 
-ntrace = 200
+ntrace = 300
 Tsv = svgd_trace(svgd, rms, ntrace, -1.)
 Tasv = svgd_trace(asvgd, rms, ntrace, -1.)
 Tsv_local  = svgd_trace(svgd_local, rms, ntrace)
@@ -38,7 +38,7 @@ Tasv_local = svgd_trace(asvgd_local, rms, ntrace)
 #save the traces
 save(joinpath(result_dir, "Traces.jld"), "sv", Tsv, "asv", Tasv,
                                         "sv_local", Tsv_local, 
-                                        "acv_local", Tasv_local)
+                                        "asv_local", Tasv_local)
 
 
 ##########
@@ -60,10 +60,10 @@ easv_local =elbo_trace(Tasv_local, lpdf);
 
 #save the ELBO and KSD
 save(joinpath(result_dir, "ksd.jld"), "sv", ksv, "asv", kasv,
-                                        "ksv_local", ksv_local, 
-                                        "acv_local", kasv_local);
+                                        "sv_local", ksv_local, 
+                                        "asv_local", kasv_local);
 
 save(joinpath(result_dir, "elbo.jld"), "sv", esv, "asv", easv,
                                         "sv_local", esv_local, 
-                                        "acv_local", easv_local)
+                                        "asv_local", easv_local)
 

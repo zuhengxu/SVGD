@@ -59,5 +59,15 @@ function hist_save(x, f::Function,T::Array{Float64,1}; folder::String = "figure/
     savefig(p, joinpath(folder, name))
 end
 
+# making line plot for quantitative comparison
+function line_plot(X, T;folder::String = "figure/", name::String = "plot.png", label = "", kwargs...)
+    # create the figure folder
+    if ! isdir(folder)
+        mkdir(folder)
+    end 
+    #line plot
+    p = plot(X, T, lw = 3, xtickfontsize=18,ytickfontsize=18, xguidefontsize=18, yguidefontsize=18, label = label; kwargs...)
+    savefig(p, joinpath(folder, name))
+end
 
 # plot(-10:.1:8, x-> 0.5*pdf(Normal(-5., 3.), x)+ 0.5*pdf(Normal(5., 0.5), x))
