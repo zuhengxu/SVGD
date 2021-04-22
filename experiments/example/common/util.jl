@@ -26,16 +26,16 @@ function ∇logπ(Z::Array{Float64, 2}, lpdf::Function)
     # threads: macros to boost performance of for loop
     # inbounds: close the bound check for array
     G = similar(Z)
-    @threads for i in 1:size(Z)[2]
+    @threads for i in 1:size(Z,2)
     @inbounds G[:,i] .= ∇lpdf(Z[:,i])
     end
     return G
 end
 
-## matrix slices to compute gradient matrixs
+# ## matrix slices to compute gradient matrixs
 # function ∇lπ(Z::Array{Float64, 2}, lpdf::Function)
 #     ∇lpdf = x-> ForwardDiff.gradient(lpdf, x)
-#     G = mapslices(∇lpdf, x0, dims = 1)
+#     G = map(∇lpdf, eachslice(Z, dims = 2))
 #     return G
 # end
 

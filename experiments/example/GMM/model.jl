@@ -25,8 +25,8 @@ function logπ(Z, X, K, D)
     term1= Lambda .- logsumexp(Lambda) - 0.5*dropdims(sum(reshape(Tau, (D, K)).^2, dims = 1) , dims = 1)
     term2 = -0.5*dropdims(sum((X .- MM).^2 .*(expm1.(-reshape(Tau, (D, K,1)).^2) .+ 1.),dims = 1), dims = 1)
 
-    llh = sum(mapslices(logsumexp, term1 .+ term2, dims = 1))
-    return logprior .+ llh
+    llh = sum(map(logsumexp, eachslice(term1 .+ term2, dims = 2)))
+    return logprior + llh
 end
 
 # X = dat["X"]
@@ -40,7 +40,7 @@ end
 # Tau = Z[K*D+ K+1 : end]
 # MM = reshape(Mu, (D,K))
 
-
+# @btime logπ(Z, dat["X"], 3,2)
 
 ##########
 # compute lpdf/∇lpdf/Hessian with dataset
@@ -49,4 +49,3 @@ dat = load("example/GMM/data/dataset.jld")
 lpdf = θ-> logπ(θ, dat["X"], 3,2)
 ∇lpdf = θ -> ∇logπ(θ, lpdf)
 Hessian = θ -> ForwardDiff.hessian(lpdf, θ)
-
