@@ -166,6 +166,11 @@ We consider the anisotropical Gaussian kernel with covariance $\Sigma$,
 For computational reason, we propose to set $\Sigma $ to the absolute value of $\diag \left(\nabla^2 \log p(x) \right)$.
 
 
+\bnprop
+theoreticl justification for gaussian target
+\enprop
+
+
 Based on the empirical findings in \cref{sec:asvgd}, we find narrower mode requires smaller bandwidth while wider mode prefers a larger kernel bandwidth. 
 Therefore, when updating $x_i$, an ideal choice of $h$ would be $1/ \sigma_1(\nabla^2 \log p(x_i))$, where $\sigma_1(M)$ denotes the maximal singular value of matrix $M$. However, solving  $\sigma_1(\nabla^2 \log p(x_i))$ is generally too expensive. We then use the maximal diagonal element of $\nabla^2 \log p(x_i)$ as approximation. The complete procedure of A-SVGD using adaptive local bandwidth is described in \cref{alg:ASVGD_bw}.
 
@@ -182,3 +187,16 @@ Also, when $n$ is large, evaluating $\nabla^2 \log p(x)$ for all the particles i
 
 
 \section{Experiment} \label{sec:expt}
+
+
+
+
+\subsection{logistic}
+
+
+
+\subsection{GMM}
+
+
+
+\subsection{Computation time}

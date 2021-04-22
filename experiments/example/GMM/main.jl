@@ -45,15 +45,25 @@ save(joinpath(result_dir, "Traces.jld"), "sv", Tsv, "asv", Tasv,
 # quantitative comparison
 ########## 
 # ksd over all iterations 
-ksd_trace(Tsv, x-> ForwardDiff.gradient(lpdf, x))
-ksd_trace(Tsv_local, x-> ForwardDiff.gradient(lpdf, x))
-ksd_trace(Tasv, x-> ForwardDiff.gradient(lpdf, x))
-ksd_trace(Tasv_local, x-> ForwardDiff.gradient(lpdf, x))
-
+ksv = ksd_trace(Tsv, x-> ForwardDiff.gradient(lpdf, x));
+ksv_local = ksd_trace(Tsv_local, x-> ForwardDiff.gradient(lpdf, x));
+kasv = ksd_trace(Tasv, x-> ForwardDiff.gradient(lpdf, x));
+kasv_local = ksd_trace(Tasv_local, x-> ForwardDiff.gradient(lpdf, x));
 
 
 # ELBO estimation Eq[log p(x, Z)] 
-elbo_trace(Tasv_local, lpdf)
-elbo_trace(Tasv, lpdf)
-elbo_trace(Tsv, lpdf)
-elbo_trace(Tsv_local,lpdf)
+esv = elbo_trace(Tsv, lpdf);
+esv_local = elbo_trace(Tsv_local,lpdf);
+easv = elbo_trace(Tasv, lpdf);
+easv_local =elbo_trace(Tasv_local, lpdf);
+
+
+#save the ELBO and KSD
+save(joinpath(result_dir, "ksd.jld"), "sv", ksv, "asv", kasv,
+                                        "ksv_local", ksv_local, 
+                                        "acv_local", kasv_local);
+
+save(joinpath(result_dir, "elbo.jld"), "sv", esv, "asv", easv,
+                                        "sv_local", esv_local, 
+                                        "acv_local", easv_local)
+

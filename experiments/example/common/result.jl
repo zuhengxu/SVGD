@@ -3,15 +3,6 @@ using JLD
 using SteinDiscrepancy
 using SteinDiscrepancy: ksd
 
-
-# t = 15
-# z = [1,3]
-# # creats a file saves all traces--named in a dictionary
-# save("example/gaussian_mix/test/myfile.jld", "t", t, "arr", z)
-# # load that file
-# d = load("example/gaussian_mix/test/myfile.jld")
-
-
 # compute the ksd using gaussian kernel
 # only works for posterior on full support
 function ksd_gaussian(T, grd::Function)
@@ -19,7 +10,7 @@ function ksd_gaussian(T, grd::Function)
     return sqrt(result.discrepancy2)
 end
 
-
+# ksd along the iterations
 function ksd_trace(T::Array{Float64, 3}, grd::Function)
     f  = M ->  ksd_gaussian(M, grd)
     ksdseq = map(f, eachslice(T, dims = 3))
@@ -32,20 +23,13 @@ function elbo(T, lpdf)
     return el
 end
 
+# elbo along the iterations
 function elbo_trace(T::Array{Float64, 3}, lpdf)
     f = M-> elbo(M, lpdf)
     es = map(f, eachslice(T, dims =3))
     return es
 end
 
-# # moment estimates given traces
-# function mean_est(T::Array{Float64, 3})
-#     return dropdims(mean(T, dims =2);dims = 2)
-# end
-
-# function var_est(T::Array{Float64, 3})
-#     return 
-# end
 
 # project 2d scatters to the line y=x
 function proj_xy(T::Array{Float64, 2})

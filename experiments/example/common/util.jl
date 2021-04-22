@@ -32,13 +32,3 @@ function ∇logπ(Z::Array{Float64, 2}, lpdf::Function)
     return G
 end
 
-# ## matrix slices to compute gradient matrixs
-# function ∇lπ(Z::Array{Float64, 2}, lpdf::Function)
-#     ∇lpdf = x-> ForwardDiff.gradient(lpdf, x)
-#     G = map(∇lpdf, eachslice(Z, dims = 2))
-#     return G
-# end
-
-
-
-
