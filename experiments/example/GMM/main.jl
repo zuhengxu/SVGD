@@ -45,9 +45,10 @@ save(joinpath(result_dir, "Traces.jld"), "sv", Tsv, "asv", Tasv,
 # quantitative comparison
 ########## 
 # ksd over all iterations 
+ksd_trace(Tsv, x-> ForwardDiff.gradient(lpdf, x))
+ksd_trace(Tsv_local, x-> ForwardDiff.gradient(lpdf, x))
+ksd_trace(Tasv, x-> ForwardDiff.gradient(lpdf, x))
 ksd_trace(Tasv_local, x-> ForwardDiff.gradient(lpdf, x))
-
-
 
 
 
