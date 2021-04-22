@@ -10,7 +10,7 @@ include("anneal.jl")
 	init_ptc::Array{Float64,2} 
     lpdf::Function
     ∇lpdf::Function
-    kernel::Function
+    kernel::Function = RBFkernel!
     anneal::Function = id_sched
 end
 

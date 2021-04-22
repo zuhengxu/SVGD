@@ -21,7 +21,6 @@ function prior_sampler(N, d;a = 1., b = 0.01)
     return Matrix([τs W]')
 end
 
-# θ0= prior_sampler(100, 3)
 
 
 
