@@ -1,5 +1,17 @@
-\section{Summary of Stein variational gradient descent} \label{sec:summary}
-\emph{Stein variational gradient descent} (SVGD) \citep{liu2016stein} is a particle-based variational inference method, which iteratively transforms a set of samples from a reference distribution to the target distribution. In general, SVGD only requires the gradient of the log density function of the target distribution. This fits well into the framework of Bayesian inference, which usually has intractable normalizing constant in target distribution.   Comparing to traditional sampling methods such as Markov Chain Monte Carlo (MCMC), SVGD uses deterministic updates and does not experience slow convergence due to autocorrelation between samples. A big advantage is that it leverage the gradient information of the target distribution, However, it also has many shortcomings. In this section, we briefly summarize the development of SVGD  and its underlying theory, and discuss its limitations at the end of this section.
+\section{Introduction} \label{sec:intro}
+\emph{Stein variational gradient descent} (SVGD) \citep{liu2016stein} is a particle-based variational inference method, which iteratively transforms a set of samples from a reference distribution to the target distribution. In general, SVGD only requires the gradient of the log density function of the target distribution. This fits well into the framework of Bayesian inference, which usually has intractable normalizing constant in target distribution.   Comparing to traditional sampling methods such as Markov Chain Monte Carlo (MCMC), SVGD uses deterministic updates and does not experience slow convergence due to autocorrelation between samples. A big advantage is that it leverage the gradient information of the target distribution, 
+
+However, it also has many shortcomings. A-SVGD cames into play. but we find in  bandwidth selection gets interesting when target distribution has multiple modes. Inspired by a few synthetic example, we propose to use a localized Gaussian kernel by using the curvature of $\log p$ at the position of each particle. 
+The second order information of $\log p$ leads to an effective choice of the kernel, which is localized on each particle and will be updated adaptively as algorithm runs. 
+
+Our empirical experiments show computational gains over the standard RBF kernel.
+
+
+
+
+
+\section{Stein variational gradient descent} \label{sec:summary}
+In this section, we briefly summarize the development of SVGD  and its underlying theory, and discuss its limitations at the end of this section.
 
 
 
@@ -33,7 +45,7 @@ Note that the gradient is the directional derivative along the steepest descent 
     & \phi^\star(\cdot) = \EE_{q}\left[ \kappa(x, \cdot) \nabla \log p(X)^T \phi(X)  + \nabla \kappa(x,\cdot ) \right], \quad \text{and} \label{eq:optimaldirection}\\
     & \left. \nabla_\eps \kl{q}{p} \right|_{\eps = 0}  = \|\phi^\star\|_{\mcH_k^d}^2 = \dee_{\kappa}(q, p). \label{eq:KLgrad}
 \]
-Here $\dee_{\kappa}(q, p)$ is the \emph{kernelized Stein discrepancy} between $q$ and $p$. Thus, by iteratively applying the following transformation to $X_0$,
+Here $\dee_{\kappa}(q, p)$ is the \emph{kernelized Stein discrepancy} (KSD) \cite{XXX} between $q$ and $p$. Thus, by iteratively applying the following transformation to $X_0$,
 \[\label{eq:normflow}
 X_0\sim q_0, \quad X_{k+1} &\gets T(X_k),\quad  T(X_k) \defined X_k + \eps \phi^\star(X_k), \quad k=0, 1 ,\dots.
 \] 
@@ -58,11 +70,6 @@ Specifically, RMSprop performs the update at $k$-th iteration as follows: for $i
     \end{aligned}  
 \]
 where $g_0 = 0\cdot\ind$ and all operations on vectors are elementwise. By default, the momentum factor $\eta$ is set to $0.9$ and the smoothing factor $\eps$ is set to $10^{-8}$. Empirically, we do observe significantly faster convergence of the above update rule than the naive gradient descent update \cref{eq:svgd}. 
-
-
-
-
-
 
 
 \subsection{Choice of the kernel} \label{sec:kernelchoice}
@@ -137,13 +144,6 @@ Different values of the kernel bandwidth can significantly influence the quality
 \end{figure}
 
 
-
-
-
-
-
-
-
 \subsection{Limitations of SVGD} 
 
 A key limitation of SVGD is its
@@ -153,7 +153,7 @@ This makes SVGD less practical compared to other particle sampling methods
 such as sequential Monte Carlo sampler---which costs $\mcO(n)$---if we aim to
 obtain a large number of samples from the target distribution.
 
-The computation problem also occurs when calculating the gradient $\nabla log
+The computation problem also occurs when calculating the gradient $\nabla \log
 p(x)$ for all particles; this is particularly expensive in a large dataset
 setting. Considering the target distribution as the posterior distribution
 of a Bayesian model, i.e., $p(\theta) \propto \pi_0(\theta)\prod_{i = 1}^{m}

@@ -5,4 +5,10 @@ is there optimal annealing schedule.
 
 is there any geometric interpretation of bandwidth
 
+
+It is worth pointing out that leveraging the Hessian of $\log p(x)$ introduces additional computation complexity. Evaluating the Hessian for all particles costs $\mcO(d^2N)$, denoting a quadratic growth as $d$ increases. This makes SVGD less practical in a high dimensional setting. In that case, we might consider using Gauss-Newton approximation to the Hessian matrix or other methods that approximate the second-order derivative using first-order information.
+Also, when $n$ is large, evaluating $\nabla^2 \log p(x)$ for all the particles is impossible. But employing  stochastic estimates of the exact Hessian matrix is a reasonable approach.  
+
+
+
 the computation effciency really depends on how fast computing the Hessian, maybe we can use Gauss-Newton approximation? using the outerproduct of grad
