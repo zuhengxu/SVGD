@@ -15,8 +15,8 @@ ksd_seq = [ K["sv"] K["sv_local"] K["asv"] K["asv_local"] ]
 elbo_seq = [ E["sv"] E["sv_local"] E["asv"] E["asv_local"] ]
 
 # making line plot
-X = 0:10:4000
-X1 = 500:10:4000
+X = 0:10:3000
+X1 = 500:10:3000
 label = ["sv" "sv_local" "asv" "asv_local"]
 line_plot(X,log1p.(ksd_seq .- 1.) ; folder = fig_path, name = "GMM_ksd.png", label = label, 
             xlabel = "Iteration", ylabel = "log KSD ", legendfontsize=18)

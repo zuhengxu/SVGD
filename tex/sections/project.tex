@@ -193,6 +193,8 @@ Also, when $n$ is large, evaluating $\nabla^2 \log p(x)$ for all the particles i
 
 \subsection{logistic}
 
+$300$ particles, $2000$ iterations, comparing median and localized kernel methods. lrt 0.01.
+
 \captionsetup[subfigure]{labelformat=empty}
 \begin{figure}[t!]
     \centering 
@@ -215,6 +217,23 @@ Also, when $n$ is large, evaluating $\nabla^2 \log p(x)$ for all the particles i
 
 \subsection{GMM}
 
+\captionsetup[subfigure]{labelformat=empty}
+\begin{figure}[t!]
+    \centering 
+\begin{subfigure}[b]{.48\textwidth} 
+    \scalebox{1}{\includegraphics[width=\textwidth]{figures/GMM_elbo.png}}
+    \caption{(a)   \label{fig:gmmelbo}}
+\end{subfigure}
+\hfill
+\centering
+\begin{subfigure}[b]{0.48\textwidth}
+    \scalebox{1}{\includegraphics[width=\textwidth]{figures/GMM_ksd.png}}
+    \caption{(b)  \label{fig:gmmksd}}
+\end{subfigure}
+
+\caption{.....}
+\label{fig:GMM}
+\end{figure}
 
 
 \subsection{Computation time}
