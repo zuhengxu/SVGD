@@ -22,8 +22,6 @@ function prior_sampler(N, d;a = 1., b = 0.01)
 end
 
 
-
-
 ##########
 # log posterior
 ##########

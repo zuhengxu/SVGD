@@ -61,7 +61,7 @@ f = (x, y) -> exp(lpdf([x, y]))
 T_grid_gs = svgd_trace(ASV_gs, rms, 100)
 T_grid_gs10 = svgd_trace(ASV_gs10, rms, 100)
 # compute ksds 
-ksd_gs = ksd_gaussian(permutedims(T_grid_gs[:,:,end], (2,1)), x-> ForwardDiff.gradient(lpdf, x))
+# ksd_gs = ksd_gaussian(permutedims(T_grid_gs[:,:,end], (2,1)), x-> ForwardDiff.gradient(lpdf, x))
 
 gif2d(x, y, f, T_grid_gs; folder = fig_path, name = "grid_gs.gif")
 contour_save(x, y, f, T_grid_gs[:,:,end]; folder = fig_path, name = "grid_gs.png")
