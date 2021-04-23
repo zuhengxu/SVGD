@@ -24,6 +24,8 @@ docs/site/
 Manifest.toml
 
 
+## pynb
+.ipynb_checkpoints/
 
 ## python tmp files
 np
