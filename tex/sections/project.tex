@@ -91,7 +91,7 @@
     \caption{(b)\label{fig:slicelocal}}
 \end{subfigure}
 
-\caption{A-SVGD with adaptive local bandwidth on a 2-component Gaussian mixture.}
+\caption{A-SVGD with localized Gaussian kernel on a 2-component Gaussian mixture.}
 \label{fig:localbw}
 \end{figure}
 
@@ -110,7 +110,7 @@
     \caption{(b) $\{x_i^{(0)}\}_{i = 1}^{500} \distiid \distNorm(10\ind, 0.25I)$ \label{fig:slicelocal}}
 \end{subfigure}
 
-\caption{A-SVGD with adaptive local bandwidth on a $4 \times 4$ Gaussian mixture.}
+\caption{A-SVGD with localized Gaussian kernel on a $4 \times 4$ Gaussian mixture.}
 \label{fig:gridlocal}
 \end{figure}
 
@@ -177,11 +177,11 @@ performance of A-SVGD still depend on the location of the initial particles.
 \subsection{Bandwidth selection} \label{sec:bwselection}
 
 Although A-SVGD manages to mix well, its performance relies heavily on a
-good choice of kernel bandwidth. Generally, to optimize the performance of SVGD and its variants, one must tune the kernel bandwidth. The original paper \citep{liu2016stein} suggest using the median trick for the typical RBF kernel,
+good choice of kernel bandwidth. Generally, to optimize the performance of SVGD and its variants, one must tune the kernel bandwidth. The original paper \citep{liu2016stein} suggests using the median trick for the typical RBF kernel,
 \[
    \kappa(x, x') = \exp(-\frac{1}{h} \|x - x'\|^2). 
 \]
-\citet{liu2016stein} suggests picking the bandwidth based on the median of the pairwise Euclidean distances between the current particles, i.e., $h=\operatorname{med}^{2} / \log n$, where $\operatorname{med}$ is the median of the Euclidean distances. This procedure will update the bandwidth automatically at each iteration and works generally well for unimodal target distribution. However, we have shows in \cref{sec:asvgd} that the median trick can be problematic when the local geometry of $\log p$ is complicated.
+The bandwidth is selected based on the median of the pairwise Euclidean distances between the current particles, i.e., $h=\operatorname{med}^{2} / \log n$, where $\operatorname{med}$ is the median of the Euclidean distances. This procedure will update the bandwidth automatically at each iteration and works generally well for unimodal target distribution. However, we will show that the median trick can be problematic when the local geometry of $\log p$ is complicated.
 
 \cref{fig:BW} present the results of A-SVGD
 on the same target across $4$ different kernel bandwidth: $h = 1, 5, 10$ and
@@ -202,8 +202,7 @@ misleading information from the particles that converge to other modes.
 
 
 Even though the previous example prefers a smaller bandwidth, it does not
-mean that we should start with a small $h$.
-In this experiment, we create a pathological yet simple example such that
+mean that smaller $h$ is always better. We then create a pathological yet simple example such that
 neither small nor large bandwidth is satisfying.
 Considering a two-component Gaussian mixture:
 \[
@@ -211,9 +210,9 @@ Considering a two-component Gaussian mixture:
 \]
 \cref{fig:differentBW} display the results of A-SVGD with $300$ initial
 particles sampled from $\distNorm(0\ind, 25I )$ using different kernel
-bandwidth $h = 0.1, 10$. With small $h$ particles located in the wide
+bandwidth $h = 0.1, 10$. With small $h$, particles located in the wide
 Gaussian component are overly contracted; with large $h$, almost all
-particles converges to the wide mode.
+particles converge to the wide mode.
 This is essentially due to the fact that the curvature of the local basin of
 two gaussian components is quite different. When using a wide kernel
 bandwidth, the driving force of those particles around the narrow Gaussian
@@ -223,13 +222,12 @@ Gaussian component, the driving force tends to point to the wide mode. Also,
 a large bandwidth leads to a stronger repulsion, which encourages the spread
 of particles. On the contrary, with small bandwidth---as shown in
 \cref{fig:bwsmall,fig:slice_small}---although the peaky Gaussian absorbs more
-particles, due to a weak repulsion introduced by the small bandwidth value,
-particles at the wider Gaussian component are not spread enough, resulting in
-an underestimation of the variance.
+particles, a weaker repulsion makes the particles collapsing together and 
+underestimate the variance of the wide Gaussian.
 This hints at an important fact that using a universal kernel bandwidth for
 all particles is not ideal, and we should use different kernel bandwidths
 when updating each of the particles depending on its local basin of $\nabla
-\log p(x)$. In the next section, we propose a localized Gaussian kernel  scheme that adaptively learns a anisotropic Gaussian kernel for each particle.
+\log p(x)$. In the next section, we propose a localized Gaussian kernel  scheme that adaptively learns an anisotropic Gaussian kernel for each particle.
 
 
 
@@ -249,10 +247,10 @@ information of the Hessian $\nabla^2 \log p(x)$.
 
 To generalize this idea, we consider the anisotropic Gaussian kernel with covariance $\Sigma$---a positive definite matrix,
 \[
-\kappa(x, x'; \Sigma) = \exp(-(x - x')^T \Sigma^{-1}(x)(x- x')  ).  
+\kappa(x, x'; \Sigma) = \exp\left(-\frac{1}{2}(x - x')^T \Sigma^{-1}(x)(x- x')  \right).  
 \]
 Note that this anisotropic Gaussian kernel is \emph{localized} as its covariance $\Sigma$ depends on $x$. 
-Intuitively, $\Sigma^{-1}$ serves as a scaling matrix to the distance between particles and induces a deformed geometriy structure in the particle space, which directly affects the gradient averaging when moving each particle and the repulsion among particles.  To align with our intuition and previous synthetic experiments in \cref{sec:asvgd}, we want the particles are more influenced by neighbouring particles when the crvature is huge and more spread when the local curvature is small. Therefore propose to set $\Sigma^{-1}$ to $\text{abs}\left( \diag \left(\nabla^2 \log p(x) \right)^{-1}\right)$. We use the absolute value because the diagonal element of $\nabla^2 \log p(x)$ can be negative if $p$ is not log-concave. The complete procedure of A-SVGD
+Intuitively, $\Sigma^{-1}$ serves as a scaling matrix to the distance between particles and induces a deformed geometry structure in the particle space, which directly affects the gradient averaging when moving each particle and the repulsion among particles.  To align with our intuition and previous synthetic experiments in \cref{sec:asvgd}, we want the particles are more influenced by neighbouring particles when the curvature is huge and more spread when the local curvature is small. Therefore propose to set $\Sigma^{-1}$ to $\text{abs}\left( \diag \left(\nabla^2 \log p(x) \right)^{-1}\right)$. We use the absolute value because the diagonal element of $\nabla^2 \log p(x)$ can be negative if $p$ is not log-concave. The complete procedure of A-SVGD
 using adaptive local bandwidth is described in \cref{alg:ASVGD_bw}.
 
 % \bnprop
@@ -271,8 +269,6 @@ the 16-component Gaussian example, as shown in
 the Gaussian component regardless of the initial particles; which even
 outperforms A-SVGD with hand-tuned bandwidth; and importantly this requires
 no user input of the kernel bandwidth.
-
-
 In the next section, we will further illustrate the advantages of incorporating
 localized kernel to SVGD and A-SVGD in Bayesian logistic regression model
 and Bayesian Gaussian mixture model (GMM). 
@@ -285,7 +281,7 @@ RBF kernel with median heuristic bandwidth and localized anisotropic
 Gaussian kernel on two common Bayesian models---the Bayesian logistic
 regression and the Bayesian Gaussian mixture model. The variants of the algorithm are denoted by
 SV, SV\_local, ASV, and ASV\_local, where ``local'' denotes the localized
-anisotropic Gaussian kernel. We run all algorithms with RMSprop updates derscribed in \cref{eq:rms}. Also, in each example, algorithms share the same
+anisotropic Gaussian kernel. We run all algorithms with RMSprop updates described in \cref{eq:rms}. Also, in each example, algorithms share the same
 set of initial particles sampled from the prior distribution, and share same learning rates.
 
 
@@ -305,7 +301,7 @@ And we choose the standard Gaussian kernel for KSD by default.
 
 \subsection{Bayeisan logistic regression}
 
-We first investigate the performance of localized Gaussian kernel on Bayesian logistic regresion for a library borrower dataset \footnote{This dataset contains information on library borrowers, and is available at \url{https://cran.r-project.org/web/packages/ISLR/index.html}. We downsample the original dataset into $1000$ datapoints.}. 
+We first investigate the performance of localized Gaussian kernel on Bayesian logistic regresion for a library borrower dataset \footnote{This dataset contains information on library borrowers, and is available at \url{https://cran.r-project.org/web/packages/ISLR/index.html}. We downsample the original dataset into $1000$ data points.}. 
 The goal is to infer the regression weights $w \in \reals^d$ and a hyperparameter $\log \alpha \in \reals$ in a binary classification problem. We are given a set of data points $(x_n, y_n)_{n =1}^N$ each consisting a feature $x_n \in \reals^d$ and a label $y_n \in \{0, 1\}$; the generative model is as follows:
 \[
     & \alpha \sim \distNamed{Gamma}(a, b)  , \quad w \mid \alpha  \sim \distNorm(0, \alpha^{-1} I) \\

@@ -44,7 +44,7 @@
    \For{ $k=0, 1, \dots, K-1$}
         \For{$i = 1, 2, \dots, n$}
         \State $\Sigma(x_i) \gets \text{abs}\left( \diag \left(\nabla^2 \log p(x_i) \right)^{-1}\right)$
-        \State $\kappa(x, x'; \Sigma(x_i))\gets \exp(-(x - x')^T \Sigma^{-1}(x_i)(x- x')  )$
+        \State $\kappa(x, x'; \Sigma(x_i))\gets \exp\left(-\frac{1}{2}(x - x')^T \Sigma^{-1}(x_i)(x- x')  \right)$
         \State $x_{i}^{(k+1)} \leftarrow x_{i}^{(k)}+ \gamma_k \hat{\phi}_{\alpha_k}\left(x_{i}^{(k)}\right)$ where $\hat{\phi}_{\alpha_k}(\cdot)$ is defined in \cref{eq:asvgd}
         \EndFor
     \EndFor
