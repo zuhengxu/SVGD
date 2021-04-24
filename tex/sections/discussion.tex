@@ -1,14 +1,8 @@
 \section{Discussion} \label{sec:discuss}
-some open problems: post hoc evaluation of the mixing issue. 
 
-is there optimal annealing schedule.
+In this report, we provide a comprehensive summarization of (annealed) Stein variational gradient descent. We also propose a novel kernel learning procedure, by allowing using a localized anisotropic Gaussian kernel for each particles. The covariance of the kernel function include the local curvature of $\log p(x)$ and improves the performance of (A-)SVGD when the target distribution has several modes. Multiple experiments show that compared with (A-)SVGD with universal RBF kernel, the localized kernel strategy leads to faster convergence and better sample qualities.
 
-is there any geometric interpretation of bandwidth
+However, it is worth pointing out that leveraging the Hessian of $\log p(x)$ introduces additional computation complexity. Evaluating the Hessian for all particles costs $\mcO(d^2N)$, denoting a quadratic growth as $d$ increases. This makes SVGD less practical in a high dimensional setting. In that case, we might consider using Gauss-Newton approximation to the Hessian matrix or other methods that approximate the second-order derivative using first-order information.
+Also, when $n$ is large, evaluating $\nabla^2 \log p(x)$ for all the particles is impossible. But employing  stochastic estimates of the exact Hessian matrix will a reasonable approach.  
 
-
-It is worth pointing out that leveraging the Hessian of $\log p(x)$ introduces additional computation complexity. Evaluating the Hessian for all particles costs $\mcO(d^2N)$, denoting a quadratic growth as $d$ increases. This makes SVGD less practical in a high dimensional setting. In that case, we might consider using Gauss-Newton approximation to the Hessian matrix or other methods that approximate the second-order derivative using first-order information.
-Also, when $n$ is large, evaluating $\nabla^2 \log p(x)$ for all the particles is impossible. But employing  stochastic estimates of the exact Hessian matrix is a reasonable approach.  
-
-
-
-the computation effciency really depends on how fast computing the Hessian, maybe we can use Gauss-Newton approximation? using the outerproduct of grad
+A more interesting problem in this line of work is to think wether there is a notion of optimal bandwidth or covariance matrix for Gaussian kernel.    It could be fruitful by studying the influence of the kernel function from a theoretical perspective. \citet{liu2019understanding} uses a heat equation to characterize the distribution path produced by SVGD and propose to optimize  the bandwidth for RBF kernel based on this equation. \citet{detommaso2018stein} attempts to learn the kernel covariance based on second-order information of the functional derivative. However, their discussion is not rigorously justified. 

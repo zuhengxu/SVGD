@@ -43,8 +43,8 @@
    \Procedure{SVGD}{$\{x_i^{(0)}  \}_{i = 1}^n$, $\nabla \log p(x)$, $\nabla^2 \log p(x)$,$\gamma_k$, $\alpha(t)$} 
    \For{ $k=0, 1, \dots, K-1$}
         \For{$i = 1, 2, \dots, n$}
-        \State $\Sigma_i \gets 1/(\max \left\{\diag \nabla^2 \log p\left( x_{i}^{(k)}\right) \right\}$
-        \State $\kappa(x, x'; \Sigma_i)\gets \exp(-(x - x')^T \Sigma_i^{-1}(x- x')  )$
+        \State $\Sigma(x_i) \gets \text{abs}\left( \diag \left(\nabla^2 \log p(x_i) \right)^{-1}\right)$
+        \State $\kappa(x, x'; \Sigma(x_i))\gets \exp(-(x - x')^T \Sigma^{-1}(x_i)(x- x')  )$
         \State $x_{i}^{(k+1)} \leftarrow x_{i}^{(k)}+ \gamma_k \hat{\phi}_{\alpha_k}\left(x_{i}^{(k)}\right)$ where $\hat{\phi}_{\alpha_k}(\cdot)$ is defined in \cref{eq:asvgd}
         \EndFor
     \EndFor
@@ -56,3 +56,23 @@
 
 
 
+\section{Details of Experiments}
+
+
+\subsection{Variable transformations of Bayesian GMM} \label{supp:gmmtransformation}
+
+To transform $(\theta_1, \dots, \theta_K) \in \Delta(K)$ and $\sigma_{kd}\in \reals_+$ into unconstrained space, we consider the change of random variables as below:
+\benum
+\item For $\sigma_{kd}\sim \distNamed{LogNormal}(0,1)$, we consider 
+\[
+     \tau_{kd} = \log(\sigma_{kd}) \sim \distNorm(0,1),   
+\]
+which has a full support on $\reals$.
+\item For $\theta \sim \distDir(\alpha_0)$, we consider using marginalized LogGamma random variables. Notice the relationship of Gamma distribution and Dirichlet distirbution as follows, 
+\[
+&\left( \lambda_k\right)_{k = 1}^K \distiid \distNamed{LogGamma}(\alpha_0, 1)\\
+& \left( \frac{\exp(\lambda_1)}{\sum_k \exp(\lambda_k)}, \dots, \frac{\exp(\lambda_K)}{\sum_k \exp(\lambda_k)}\right) \sim \distDir(\alpha_0),
+\]
+then $\lambda_k$ is supported on $\reals$. In our example, we set $\alpha_0 = 1$.
+\eenum
+Therefore, instead of inferring the original parameters, we perform SVGD on the posterior distribution of $(\lambda_{1:k}, \mu_{1:k}, \tau_{11:kd})$.

@@ -29,7 +29,7 @@
     \caption{(d)\label{fig:bwmed}}
 \end{subfigure}
 
-\caption{Comparison of A-SVGD on the synthetic Gaussian mixture with 16 components across different bandwidth. }
+\caption{Comparison of A-SVGD on the synthetic Gaussian mixture with 16 components across different bandwidth. The KSDs are estimated using the same kernel.}
 \label{fig:BW}
 \end{figure}
 
@@ -114,14 +114,19 @@
 \label{fig:gridlocal}
 \end{figure}
 
-
-
+A key limitation of SVGD is the mixing issue when the target
+distribution $p(x)$ has multiple modes, where the
+particles collapse at a particular mode and fail
+to explore other high density regions. This is also known
+as the \emph{mode collapse} phenomenon \citep{zhuo2018message,d2021annealed}
+and appears often when the modes are distant from each other. This problem tends to be more severe in high-dimensional settings, but can
+also be observed on a simple 2D Gaussian mixture target. 
 In this section, we provide a brief introduction of the annealed SVGD
 (A-SVGD), which is developed to address the mixing issue
 \citep{d2021annealed}, and use a few synthetic examples to identify a key
 limitation of the current work. The design of the synthetic example aims to
 understand the influence of the kernel bandwidth on the behaviour of SVGD or
-A-SVGD and help us to build the intuition of picking a proper value. All the
+A-SVGD and help us to build the intuition of picking a proper value. The
 experiments performed in this report use the RMSprop update rule
 \cref{eq:rms}. We run both SVGD and A-SVGD with standard RBF kernel for
 $1000$ iterations under a constant learning rate $\gamma_k = 0.1$.
@@ -147,15 +152,13 @@ by introducing an annealing term $\alpha(k) \in [0, 1]$:
     \hat{\phi}_{\alpha_k}\left(x\right) = \frac{1}{n} \sum_{j=1}^{n}\left[ \alpha(k)\kappa\left(x_{j}^{(k)}, x\right) \nabla \log p\left(x_{j}^{(k)}\right)+ \nabla_{x_{j}^{(k)}} \kappa\left(x_{j}^{(k)}, x\right)\right].
 \]
 In particular, the authors suggest using a cyclical annealing schedule, i.e., 
-\[
+\[\label{eq:anneal_sched}
     \alpha(k)=\left(\frac{\bmod (k, K / C)}{K / C}\right)^{p},
 \]
 where $K$ is the total number of iterations, $C$ is the number of cycles, and
 $p > 0$ is an exponent factor that controls the speed of the transition
 between two phases. As demonstrated in \cref{fig:acsched}, smaller $p$
-corresponds to a shorter period of the exploratory phase. In all our
-experiments using A-SVGD, we set $ p = 1$ and $C = 2$. {\color{red} add a few
-sentence about cyclical }
+corresponds to a shorter period of the exploratory phase. For the two synthetic Gaussian mixture examples of this section, we set $ p = 1$ and $C = 2$ for A-SVGD. 
 
 Now we compare the performance of A-SVGD and SVGD on a synthetic Gaussian
 mixture (\cref{fig:SVGD_ASVGD}). The target distribution is a 2D mixture of
@@ -171,16 +174,18 @@ close by the initialization. Comparing
 \cref{fig:T0_rms_anneal,fig:T10_rms_anneal}, one may notice that the
 performance of A-SVGD still depend on the location of the initial particles.
 
-\subsection{Bandwidth selection}
+\subsection{Bandwidth selection} \label{sec:bwselection}
 
-Although the A-SVGD manages to mix well, its performance relies heavily on a
-good choice of kernel bandwidth. Generally, to optimize the performance of SVGD and its variants, one must tune the kernel bandwidth. The original paper \citep{liu2016stein} suggest using the median trick
-
-
+Although A-SVGD manages to mix well, its performance relies heavily on a
+good choice of kernel bandwidth. Generally, to optimize the performance of SVGD and its variants, one must tune the kernel bandwidth. The original paper \citep{liu2016stein} suggest using the median trick for the typical RBF kernel,
+\[
+   \kappa(x, x') = \exp(-\frac{1}{h} \|x - x'\|^2). 
+\]
+\citet{liu2016stein} suggests picking the bandwidth based on the median of the pairwise Euclidean distances between the current particles, i.e., $h=\operatorname{med}^{2} / \log n$, where $\operatorname{med}$ is the median of the Euclidean distances. This procedure will update the bandwidth automatically at each iteration and works generally well for unimodal target distribution. However, we have shows in \cref{sec:asvgd} that the median trick can be problematic when the local geometry of $\log p$ is complicated.
 
 \cref{fig:BW} present the results of A-SVGD
 on the same target across $4$ different kernel bandwidth: $h = 1, 5, 10$ and
-the median heuristic described in \cref{sec:kernelchoice}. The initial
+the median heuristic (will be introduced in \cref{sec:bw}). The initial
 particles are $500$ \iid samples from $\distNorm(0, 0.25I)$. We find that as
 $h$ increases (not even a large amount), the convergence of A-SVGD gets
 ruined. Moreover, the median trick suggested by \citet{liu2016stein}
@@ -224,13 +229,12 @@ an underestimation of the variance.
 This hints at an important fact that using a universal kernel bandwidth for
 all particles is not ideal, and we should use different kernel bandwidths
 when updating each of the particles depending on its local basin of $\nabla
-\log p(x)$. In the next section, we propose an adaptive local bandwidth
-selection scheme that requires no input from the user.
+\log p(x)$. In the next section, we propose a localized Gaussian kernel  scheme that adaptively learns a anisotropic Gaussian kernel for each particle.
 
 
 
 
-\section{Adaptive localized Gaussian kernel} \label{sec:bw}
+\section{Localized Gaussian kernel} \label{sec:bw}
 
 With the intuition obtained in the last section, we suggest using different
 bandwidth values for each particle and updates the bandwidth adaptively
@@ -243,59 +247,53 @@ location. Intuitively, a proper choice of the bandwidth should reflect the
 local geometry of $\log p(x)$---the curvature of $\log p(x)$---which includes
 information of the Hessian $\nabla^2 \log p(x)$.
 
-We consider the anisotropical Gaussian kernel with covariance $\Sigma$,
+To generalize this idea, we consider the anisotropic Gaussian kernel with covariance $\Sigma$---a positive definite matrix,
 \[
-\kappa(x, x'; \Sigma) = \exp(-(x - x')^T \Sigma^{-1}(x- x')  ).  
+\kappa(x, x'; \Sigma) = \exp(-(x - x')^T \Sigma^{-1}(x)(x- x')  ).  
 \]
-For computational reason, we propose to set $\Sigma $ to the absolute value of $\diag \left(\nabla^2 \log p(x) \right)^{-1}$.
-
-\bnprop
-theoreticl justification for gaussian target
-\enprop
-
-
-Based on the empirical findings in \cref{sec:asvgd}, we find narrower mode
-requires smaller bandwidth while wider mode prefers a larger kernel
-bandwidth.
-Therefore, when updating $x_i$, an ideal choice of $h$ would be $1/
-\sigma_1(\nabla^2 \log p(x_i))$, where $\sigma_1(M)$ denotes the maximal
-singular value of matrix $M$. However, solving $\sigma_1(\nabla^2 \log
-p(x_i))$ is generally too expensive. We then use the maximal diagonal element
-of $\nabla^2 \log p(x_i)$ as approximation. The complete procedure of A-SVGD
+Note that this anisotropic Gaussian kernel is \emph{localized} as its covariance $\Sigma$ depends on $x$. 
+Intuitively, $\Sigma^{-1}$ serves as a scaling matrix to the distance between particles and induces a deformed geometriy structure in the particle space, which directly affects the gradient averaging when moving each particle and the repulsion among particles.  To align with our intuition and previous synthetic experiments in \cref{sec:asvgd}, we want the particles are more influenced by neighbouring particles when the crvature is huge and more spread when the local curvature is small. Therefore propose to set $\Sigma^{-1}$ to $\text{abs}\left( \diag \left(\nabla^2 \log p(x) \right)^{-1}\right)$. We use the absolute value because the diagonal element of $\nabla^2 \log p(x)$ can be negative if $p$ is not log-concave. The complete procedure of A-SVGD
 using adaptive local bandwidth is described in \cref{alg:ASVGD_bw}.
+
+% \bnprop
+% theoreticl justification for gaussian target
+% \enprop
+
+
 
 With other settings fixed, we apply \cref{alg:ASVGD_bw} to the previous two
 synthetic examples. As demonstrated in \cref{fig:localbw}, by using the local
 bandwidth, the samples in the wide component correctly characterize its
 variance and there is a certain amount of samples concentrate at the peak
 mode. This combines the advantages of both small $h$ and large $h$. And for
-the 16-component Gaussian example, since all Gaussian component shares the
-same covariance, we do not expect A-SVGD with adaptive localized Gaussian
-kernel could outperform the previous results significantly. As shown in
+the 16-component Gaussian example, as shown in
 \cref{fig:gridlocal}, A-SVGD using localized kernel effectively explores all
-the Gaussian component regardless of the initial particlesl; which even
+the Gaussian component regardless of the initial particles; which even
 outperforms A-SVGD with hand-tuned bandwidth; and importantly this requires
 no user input of the kernel bandwidth.
 
 
-In the next section, we will illustrate the advantages of incorporating
-localized kernel to SVGD and A-SVGD in Bayeisian logistic regression model
-and Bayesian Gaussian mixture model (GMM).
+In the next section, we will further illustrate the advantages of incorporating
+localized kernel to SVGD and A-SVGD in Bayesian logistic regression model
+and Bayesian Gaussian mixture model (GMM). 
 
 
 \section{Experiment} \label{sec:expt}
 
 In this section, we measure the sample quality of SVGD and A-SVGD using both
-RBF kernel with median heuristic bandwidth and localized anisotropical
+RBF kernel with median heuristic bandwidth and localized anisotropic
 Gaussian kernel on two common Bayesian models---the Bayesian logistic
-regression and the Bayesian GMM. The variants of the algorithm are denoted by
+regression and the Bayesian Gaussian mixture model. The variants of the algorithm are denoted by
 SV, SV\_local, ASV, and ASV\_local, where ``local'' denotes the localized
-anisotropical Gaussian kernel. In each example, all algorithms share the same
-set of initial particles sampled from the prior distribution.
+anisotropic Gaussian kernel. We run all algorithms with RMSprop updates derscribed in \cref{eq:rms}. Also, in each example, algorithms share the same
+set of initial particles sampled from the prior distribution, and share same learning rates.
 
-We focus on quantitative characterization of sample quality. Specifically, we
+
+We focus on quantitative  characterizations of sample quality for these algorithms. Choosing a reasonable metric that measures the performance of a sampling method  is difficult. In fact, a major problem to the empirical results in \citet{liu2016stein,d2021annealed} is the lack of insightful quantitative comparisons between different methods. \citet{liu2016stein} considers the test accuracy of the model with estimated parameters, while  
+\citet{d2021annealed} rely on visualizations of the particles positions; both methods are not straightforward and can be misleading in certain cases.
+In this section,  we
 keep track of two quantities as algorithms run: \emph{expected lower
-bound}(ELBO) \citet{blei2017variational}---which is equivalent to the
+bound}(ELBO) \citep{blei2017variational}---which is equivalent to the
 negative KL divergence between the posterior and variational distribution up
 to a constant---and the KSD between the posterior and variational
 distribution. A larger ELBO corresponds to a better approximation, while a
@@ -307,12 +305,15 @@ And we choose the standard Gaussian kernel for KSD by default.
 
 \subsection{Bayeisan logistic regression}
 
-
-
-
-
-
-$300$ particles, $2000$ iterations, comparing median and localized kernel methods. lrt 0.01.
+We first investigate the performance of localized Gaussian kernel on Bayesian logistic regresion for a library borrower dataset \footnote{This dataset contains information on library borrowers, and is available at \url{https://cran.r-project.org/web/packages/ISLR/index.html}. We downsample the original dataset into $1000$ datapoints.}. 
+The goal is to infer the regression weights $w \in \reals^d$ and a hyperparameter $\log \alpha \in \reals$ in a binary classification problem. We are given a set of data points $(x_n, y_n)_{n =1}^N$ each consisting a feature $x_n \in \reals^d$ and a label $y_n \in \{0, 1\}$; the generative model is as follows:
+\[
+    & \alpha \sim \distNamed{Gamma}(a, b)  , \quad w \mid \alpha  \sim \distNorm(0, \alpha^{-1} I) \\
+    & y_{n} \mid x_{n}, w  \stackrel{\text { indep }}{\sim} \operatorname{Bern}\left(\frac{1}{1+e^{-x_{n}^{T w}}}\right).
+\]  
+We adopt the same setting as \citet{liu2016stein} by picking the shape and rate parameters as $a = 1, b = 0.01$.  Note that since the posterior distirbution on this problem is unimodal and this is no risk of mode collapse, we only compare the standard SVGD using median bandwidth (SV) and its counterpart with localized Gaussian kernel (SV\_local). For both algorithms, we initialize $300$ particles from the prior, 
+and use a constant learning rate $0.01$ for $2000$ iterations.  
+\cref{fig:logistic_reg} presents the of this example. As this is a simple problem, these two methods give almost identical results in terms of the convergence speed and final sample qualities. Though the final particles given by SV\_local seem to yield a slightly lower KSD to the posterior distribution, the difference is not significant enough.
 
 \captionsetup[subfigure]{labelformat=empty}
 \begin{figure}[t!]
@@ -328,15 +329,11 @@ $300$ particles, $2000$ iterations, comparing median and localized kernel method
     \caption{(b)  \label{fig:logisksd}}
 \end{subfigure}
 
-\caption{.....}
+\caption{Results for Bayesian logistic regression}
 \label{fig:logistic_reg}
 \end{figure}
 
 
-
-
-\subsection{Bayesian Gaussian mixture model}
-$300$ particles, $3000$ iterations, comparing median and localized kernel methods. lrt 0.02. Anneal 1000 each cycle  $p =1$.
 
 \captionsetup[subfigure]{labelformat=empty}
 \begin{figure}[t!]
@@ -352,14 +349,35 @@ $300$ particles, $3000$ iterations, comparing median and localized kernel method
     \caption{(b)  \label{fig:gmmksd}}
 \end{subfigure}
 
-\caption{.....}
+\caption{Results for GMM}
 \label{fig:GMM}
 \end{figure}
 
-both SVGD and A-SVGD stuck at local optima when using median bw as 
 
-This reveals a major issue of using cyclical annealing schedule.
+\subsection{Bayesian Gaussian mixture model}
 
-Localized kernel helps to stablize the A-SVGD
+Next we compare the methods on a Bayesian Gaussian mixture model applied to a synthetic dataset. In the Bayesian Gaussian mixture model, 
+we are given $N$ observations $(x_n)^N_{n=1}\subseteq \reals^d$, each following a $k$-component Gaussian mixture distribution:
+\[
+    x_n | \theta_{1:K}, \mu_{1:K}, \sigma_{1:K, 1:D} &\sim \sum_{k = 1}^K \theta_k\distNorm\left(\mu_k, \diag(\sigma_{k1}, \dots , \sigma_{kD})\right).
+\]
+The goal is to infer the posterior distribution of all the latent parameters
+$(\theta_{1:k}, \mu_{1:k}, \sigma_{1:K, 1:D})$, on which we place a Dirichlet
+prior on the mixture proportions, a Gaussian prior on the Gaussian means, and a
+lognormal prior on the standard deviations, i.e.,
+\[(\theta_1, \dots, \theta_K) &\sim \distDir(\alpha_0) \\
+    \mu_k &\sim \distNorm(0, I), \quad k  = 1, 2, \dots, K\\
+\sigma_{kd} &\sim \distNamed{LogNormal}(0,1),   \quad k  = 1, 2, \dots, K, d = 1, 2, \dots D.
+\]
+One may notice that the support of $\theta_k$ and $ \sigma_{kd}$ is
+constrained; the presented SVGD and A-SVGD with Gaussian kernel are limited to target distribution with full support. Thus, we first apply transformations such that the transformed variables have unconstrained support. The details of the
+transformation can be found in \cref{supp:gmmtransformation}.
 
-but there is something interesting about the 
+The synthetic dataset contains $N = 400$ datapoints, equally generated from $4$ isotropic bivariate Gaussian distributions with equal covariance $0.6^2 I$. The mean of those Gaussian distributions are randomely generated within $[-5, 5]^2$. We fit this dataset with $K = 2$; this misspecified setting creates multiple meaningful modes on posterior distribution, which makes standard SVGD/A-SVGD harder to mix. 
+For the inference, we use $300$ initial particles, and set a constant learning rate $0.02$ over $3000$ iterations. For A-SVGD, we use the cyclical annealing schedule \cref{eq:anneal_sched} with $p = 1$ and $C = 3$.
+
+Unlike the last example, the posterior distribution of GMM is complicated enough to differentiate these methods. As demonstrated in \cref{fig:GMM}, using localized Gaussian kernel notably improves the convergence speed---both KSD and KL divergence drops faster. And is able to produce better approximation to the posterior, as shown in the higher ELBO value and smaller KSD estimated from the final particles. It is also surprising that SV\_local outperforms A-SVGD with median heuristic bandwidth, and shows similar performance to ASV\_local. 
+
+This result also reveals a potential problem with A-SVGD using cyclical annealing schedule. One may notice that at $1000$-th and $2000$-th iteration, when the annealing function starts a new cycle, A-SVGD using median heuristic bandwidth displays significant drop in sample quality. This is essentially because the particles leaves their local basin due to low driving force and spread aggressively. However, we do not observe such phenomenon when employ localized Gaussian kernel to A-SVGD; there is still oscillation of the KSD in the exploratory phase, but it does not change the sample quality drastically. One thing that is not clear from \cref{fig:gmmksd} is that ASV\_local shows opposite oscillation trend to ASV at the beginning of each cycle; the KSD of ASV\_local even drops. This may indicate that the set of particles may approximate the posterior better if it is slightly more spread. We might want to introduce a dimension-dependent scaling factor to the kernel covariance $\Sigma$; but this idea has not been experimented yet due to time constraint. 
+
+
